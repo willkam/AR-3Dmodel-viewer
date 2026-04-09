@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D Model Viewer</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="./style.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/",
+          "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/+esm",
+          "qrcode": "https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div class="brand-text">
+            <div class="brand-title">3D Model Viewer</div>
+            <div class="brand-sub">Material + Orbit Preview</div>
+          </div>
+        </div>
+        <div class="top-actions">
+          <label class="btn file-btn">
+            <input id="fileInput" type="file" accept=".glb,.gltf,.fbx" multiple webkitdirectory />
+            Upload Folder / GLB / FBX
+          </label>
+          <button id="shareArBtn" class="btn">View in AR</button>
+          <button id="descToggle" class="btn">Description</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="viewer">
+          <canvas id="sceneCanvas"></canvas>
+          <div class="side-controls">
+            <button id="autoRotateBtn" class="btn btn-secondary">Auto Rotate</button>
+            <button id="fitBtn" class="btn btn-secondary">Reset View</button>
+            <button id="yAxisBtn" class="btn btn-secondary">Fix Y+</button>
+            <div class="side-block">
+              <div class="side-label">Background</div>
+              <div class="side-chips" id="bgMode">
+                <button class="chip chip-light" data-bg="default">Default</button>
+                <button class="chip chip-light" data-bg="light">Light Gray</button>
+                <button class="chip chip-light" data-bg="dark">Dark Gray</button>
+                <button class="chip chip-light" data-bg="gradient">Gradient</button>
+              </div>
+            </div>
+            <div class="side-block">
+              <button id="envToggleBtn" class="btn btn-secondary">Env Light On</button>
+              <div class="side-slider">
+                <div class="side-label">
+                  Light Intensity
+                  <span id="lightIntensityValue" class="side-value">1.00</span>
+                </div>
+                <input id="lightIntensity" type="range" min="0" max="2" step="0.05" value="1" />
+              </div>
+              <div class="side-slider">
+                <div class="side-label">
+                  Light Temp (K)
+                  <span id="lightTempValue" class="side-value">6500</span>
+                </div>
+                <input id="lightTemp" type="range" min="2500" max="10000" step="100" value="6500" />
+              </div>
+            </div>
+          </div>
+          <div class="hud">
+            <div class="hud-group">
+              <span class="hud-label">View</span>
+              <button data-view="perspective" class="chip active">Perspective</button>
+              <button data-view="front" class="chip">Front</button>
+              <button data-view="back" class="chip">Back</button>
+              <button data-view="left" class="chip">Left</button>
+              <button data-view="right" class="chip">Right</button>
+              <button data-view="top" class="chip">Top</button>
+              <button data-view="bottom" class="chip">Bottom</button>
+            </div>
+            <div class="hud-group">
+              <span class="hud-label">Material</span>
+              <label class="switch">
+                <input id="materialToggle" type="checkbox" checked />
+                <span class="slider"></span>
+              </label>
+              <span class="switch-label">On</span>
+            </div>
+            <div class="hud-group">
+              <span class="hud-label">Wireframe</span>
+              <label class="switch">
+                <input id="wireToggle" type="checkbox" />
+                <span class="slider"></span>
+              </label>
+              <span class="switch-label">Off</span>
+            </div>
+          </div>
+          <div id="dropHint" class="drop-hint">Drop GLB/GLTF/FBX + textures here</div>
+        </section>
+
+        <aside id="descPanel" class="panel hidden">
+          <div class="panel-header">
+            <div class="panel-title">Model Description</div>
+            <button id="descClose" class="btn btn-ghost">Close</button>
+          </div>
+          <textarea id="descText" placeholder="Write notes about the model, materials, or usage."></textarea>
+          <div class="panel-footer">
+            <button id="descSave" class="btn">Save</button>
+            <span id="descSaved" class="status">Saved</span>
+          </div>
+        </aside>
+      </main>
+
+      <div id="arModal" class="modal hidden" aria-hidden="true">
+        <div class="modal-backdrop" data-close="1"></div>
+        <div class="modal-card" role="dialog" aria-modal="true" aria-label="View in AR">
+          <div class="modal-head">
+            <div class="modal-title">View in AR</div>
+            <button id="arCloseBtn" class="btn btn-ghost">Close</button>
+          </div>
+
+          <div class="modal-body">
+            <div class="field">
+              <label class="field-label" for="sbUrlInput">Supabase Project URL</label>
+              <input id="sbUrlInput" class="field-input" placeholder="https://xxxx.supabase.co" />
+              <div class="field-help">Saved locally in this browser. Used to upload and serve files from Storage.</div>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="sbKeyInput">Supabase Publishable Key</label>
+              <input id="sbKeyInput" class="field-input" placeholder="sb_publishable_..." />
+              <div class="field-help">Use the publishable key, not the secret key.</div>
+            </div>
+
+            <div class="field">
+              <div class="field-label">Upload for AR</div>
+              <div class="field-row">
+                <button id="pickArFilesBtn" class="btn">Choose GLB (and optional USDZ)</button>
+                <span id="arFilesLabel" class="field-help">No files selected</span>
+              </div>
+              <input id="arFilesInput" type="file" accept=".glb,.usdz" multiple hidden />
+              <div class="field-help">Android WebXR/Scene Viewer uses GLB. iOS AR works best with USDZ.</div>
+            </div>
+
+            <div class="field">
+              <button id="uploadArBtn" class="btn">Upload & Generate QR</button>
+              <div id="arStatus" class="field-help"></div>
+            </div>
+
+            <div id="arResult" class="ar-result hidden">
+              <img id="arQrImg" class="qr" alt="QR code" />
+              <div class="ar-link">
+                <input id="arLinkInput" class="field-input" readonly />
+                <button id="copyArLinkBtn" class="btn btn-ghost">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
