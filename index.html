@@ -28,17 +28,11 @@
           </div>
         </div>
         <div class="top-actions">
-          <label class="btn file-btn tooltip">
-            <input id="fileInput" type="file" accept=".glb,.gltf,.fbx,.usdz" multiple webkitdirectory />
+          <label class="btn btn-upload file-btn">
+            <input id="fileInput" type="file" accept=".glb,.gltf,.fbx,.usdz" multiple />
             Upload Model
-            <span class="tip" role="tooltip">
-              AR requirements:
-              <br />
-              Android WebXR uses GLB.
-              <br />
-              iOS AR works best with USDZ.
-            </span>
           </label>
+          <span class="upload-hint">AR requirements: Android WebXR uses GLB. iOS AR works best with USDZ.</span>
           <button id="shareArBtn" class="btn">View in AR</button>
           <button id="descToggle" class="btn">Description</button>
         </div>
