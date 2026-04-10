@@ -841,8 +841,15 @@ function normalizeSbUrl(value) {
   return String(value || '').trim().replace(/\/+$/, '');
 }
 
-function setArStatus(text) {
+function setHintClass(el, kind) {
+  if (!el) return;
+  el.classList.remove('hint-info', 'hint-warn', 'hint-ok', 'hint-err');
+  if (kind) el.classList.add(kind);
+}
+
+function setArStatus(text, kind = 'hint-info') {
   if (arStatus) arStatus.textContent = text || '';
+  setHintClass(arStatus, kind);
 }
 
 function setModalOpen(open) {
@@ -864,12 +871,16 @@ function updateArFilesLabel() {
     const okIos = !!arUsdzFile;
     if (uploadArBtn) uploadArBtn.disabled = !okAndroid && !okIos;
     if (!okAndroid && !okIos) {
+      setHintClass(arCompatHint, 'hint-warn');
       arCompatHint.textContent = 'AR: Please upload a GLB (Android) and/or USDZ (iOS) using “Upload Model”.';
     } else if (okAndroid && okIos) {
+      setHintClass(arCompatHint, 'hint-ok');
       arCompatHint.textContent = 'AR: Ready for Android (GLB) and iOS (USDZ).';
     } else if (okAndroid) {
+      setHintClass(arCompatHint, 'hint-warn');
       arCompatHint.textContent = 'AR: Android ready (GLB). iOS AR works best with USDZ.';
     } else {
+      setHintClass(arCompatHint, 'hint-warn');
       arCompatHint.textContent = 'AR: iOS ready (USDZ). Android WebXR uses GLB.';
     }
   }
@@ -881,8 +892,9 @@ function setArResult(url, qrDataUrl) {
   if (arQrImg) arQrImg.src = qrDataUrl || '';
   if (arScanHint) {
     arScanHint.textContent = url
-      ? '扫码提示：iOS 请用系统相机扫描；Android 可用相机或 Google Lens，或在 Chrome 打开链接。'
+      ? 'Scan tips: iOS use the default Camera app. Android use Camera or Google Lens, or open the link in Chrome.'
       : '';
+    setHintClass(arScanHint, 'hint-info');
   }
 }
 
@@ -907,11 +919,11 @@ async function uploadForAr() {
   const bucket = 'models';
 
   if (!sbUrl || !/^https?:\/\//i.test(sbUrl)) {
-    setArStatus('Please set a valid Supabase Project URL.');
+    setArStatus('Please set a valid Supabase Project URL.', 'hint-err');
     return;
   }
   if (!sbKey || !sbKey.startsWith('sb_')) {
-    setArStatus('Please set a valid Supabase publishable key.');
+    setArStatus('Please set a valid Supabase publishable key.', 'hint-err');
     return;
   }
 
@@ -919,19 +931,19 @@ async function uploadForAr() {
   localStorage.setItem('sbKey', sbKey);
 
   if (!arGlbFile && !arUsdzFile) {
-    setArStatus('Choose at least a GLB file (USDZ optional).');
+    setArStatus('Upload at least a GLB file (USDZ optional).', 'hint-warn');
     return;
   }
   if (arGlbFile && extOf(arGlbFile.name) !== 'glb') {
-    setArStatus('GLB file must end with .glb');
+    setArStatus('GLB file must end with .glb', 'hint-err');
     return;
   }
   if (arUsdzFile && extOf(arUsdzFile.name) !== 'usdz') {
-    setArStatus('USDZ file must end with .usdz');
+    setArStatus('USDZ file must end with .usdz', 'hint-err');
     return;
   }
 
-  setArStatus('Uploading to Supabase Storage...');
+  setArStatus('Uploading to Supabase Storage...', 'hint-info');
   setArResult('', '');
   uploadArBtn.disabled = true;
 
@@ -946,7 +958,7 @@ async function uploadForAr() {
     };
 
     if (arGlbFile) {
-      setArStatus('Uploading GLB...');
+      setArStatus('Uploading GLB...', 'hint-info');
       const { error } = await supabase.storage.from(bucket).upload(paths.glb, arGlbFile, {
         upsert: false,
         contentType: 'model/gltf-binary',
@@ -956,7 +968,7 @@ async function uploadForAr() {
     }
 
     if (arUsdzFile) {
-      setArStatus('Uploading USDZ...');
+      setArStatus('Uploading USDZ...', 'hint-info');
       const { error } = await supabase.storage.from(bucket).upload(paths.usdz, arUsdzFile, {
         upsert: false,
         contentType: 'model/vnd.usdz+zip',
@@ -976,7 +988,7 @@ async function uploadForAr() {
       urls,
     };
 
-    setArStatus('Writing manifest...');
+    setArStatus('Writing manifest...', 'hint-info');
     const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
     {
       const { error } = await supabase.storage.from(bucket).upload(paths.manifest, manifestBlob, {
@@ -994,13 +1006,13 @@ async function uploadForAr() {
 
     const qrApi = getQrApi();
     if (!qrApi) throw new Error('QR library not available');
-    setArStatus('Generating QR...');
+    setArStatus('Generating QR...', 'hint-info');
     const qrDataUrl = await qrApi.toDataURL(arUrl.toString(), { margin: 1, width: 360 });
 
     setArResult(arUrl.toString(), qrDataUrl);
-    setArStatus('Ready.');
+    setArStatus('Ready.', 'hint-ok');
   } catch (err) {
-    setArStatus(`Error: ${String(err && err.message ? err.message : err)}`);
+    setArStatus(`Error: ${String(err && err.message ? err.message : err)}`, 'hint-err');
   } finally {
     uploadArBtn.disabled = false;
   }
@@ -1039,10 +1051,10 @@ copyArLinkBtn?.addEventListener('click', async () => {
   if (!v) return;
   try {
     await navigator.clipboard.writeText(v);
-    setArStatus('Copied.');
+    setArStatus('Copied.', 'hint-ok');
     setTimeout(() => setArStatus(''), 900);
   } catch {
-    setArStatus('Copy failed. Long-press to copy.');
+    setArStatus('Copy failed. Long-press to copy.', 'hint-err');
   }
 });
 

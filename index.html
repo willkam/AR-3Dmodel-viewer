@@ -32,7 +32,10 @@
             <input id="fileInput" type="file" accept=".glb,.gltf,.fbx,.usdz" multiple />
             Upload Model
           </label>
-          <span class="upload-hint">AR requirements: Android WebXR uses GLB. iOS AR works best with USDZ.</span>
+          <span class="upload-hint">
+            <span class="hint-info">Tip: drag a folder onto the viewer to import multiple files.</span>
+            <span class="hint-warn">AR requirements: Android WebXR uses GLB. iOS AR works best with USDZ.</span>
+          </span>
           <button id="shareArBtn" class="btn">View in AR</button>
           <button id="descToggle" class="btn">Description</button>
         </div>
@@ -139,13 +142,13 @@
 
             <div class="field">
               <div class="field-label">Current Upload</div>
-              <div id="arFilesLabel" class="field-help">No model uploaded yet.</div>
-              <div id="arCompatHint" class="field-help"></div>
+              <div id="arFilesLabel" class="field-help hint-info">No model uploaded yet.</div>
+              <div id="arCompatHint" class="field-help hint-warn"></div>
             </div>
 
             <div class="field">
-              <button id="uploadArBtn" class="btn">上传模型并通过 AR 查看</button>
-              <div id="arStatus" class="field-help"></div>
+              <button id="uploadArBtn" class="btn">Upload Model for AR</button>
+              <div id="arStatus" class="field-help hint-info"></div>
             </div>
 
             <div id="arResult" class="ar-result hidden">
@@ -154,7 +157,7 @@
                 <input id="arLinkInput" class="field-input" readonly />
                 <button id="copyArLinkBtn" class="btn btn-ghost">Copy</button>
               </div>
-              <div id="arScanHint" class="field-help"></div>
+              <div id="arScanHint" class="field-help hint-info"></div>
             </div>
           </div>
         </div>
