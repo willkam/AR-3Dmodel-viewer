@@ -40,6 +40,7 @@ const arQrImg = document.getElementById('arQrImg');
 const arLinkInput = document.getElementById('arLinkInput');
 const copyArLinkBtn = document.getElementById('copyArLinkBtn');
 const arScanHint = document.getElementById('arScanHint');
+const viewerMsg = document.getElementById('viewerMsg');
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -334,6 +335,7 @@ function clearModel() {
 }
 
 function loadGltfFromUrl(url) {
+  setViewerMsg('Loading model...', 'hint-info');
   loader.load(
     url,
     (gltf) => {
@@ -347,15 +349,18 @@ function loadGltfFromUrl(url) {
       currentBounds = computeBounds(currentModel);
       fitCameraToBounds(currentBounds);
       applyLightSettings();
+      setViewerMsg('', 'hint-info');
     },
     undefined,
     (error) => {
       console.error('Failed to load model', error);
+      setViewerMsg(`Failed to load model: ${error?.message || String(error)}`, 'hint-err');
     }
   );
 }
 
 function loadGltfWithFiles(gltfFile, files) {
+  setViewerMsg('Loading model...', 'hint-info');
   const basePath = getBasePath(gltfFile);
   const { manager, objectUrls } = createFileManager(files, basePath);
 
@@ -366,33 +371,37 @@ function loadGltfWithFiles(gltfFile, files) {
     scopedLoader.parse(
       gltfText,
       '',
-    (gltf) => {
-      clearModel();
-      currentModel = gltf.scene;
-      setBaseTransform(currentModel);
-      applyYAxisFlip(currentModel, yAxisFlipped);
-      rememberOriginalMaterials(currentModel);
-      swapMaterials(currentModel, materialEnabled);
-      scene.add(currentModel);
+      (gltf) => {
+        clearModel();
+        currentModel = gltf.scene;
+        setBaseTransform(currentModel);
+        applyYAxisFlip(currentModel, yAxisFlipped);
+        rememberOriginalMaterials(currentModel);
+        swapMaterials(currentModel, materialEnabled);
+        scene.add(currentModel);
         currentBounds = computeBounds(currentModel);
         fitCameraToBounds(currentBounds);
         applyLightSettings();
         objectUrls.forEach((url) => URL.revokeObjectURL(url));
+        setViewerMsg('', 'hint-info');
       },
       (error) => {
         console.error('Failed to parse GLTF', error);
         objectUrls.forEach((url) => URL.revokeObjectURL(url));
+        setViewerMsg(`Failed to load model: ${error?.message || String(error)}`, 'hint-err');
       }
     );
   };
   reader.onerror = () => {
     console.error('Failed to read GLTF file');
     objectUrls.forEach((url) => URL.revokeObjectURL(url));
+    setViewerMsg('Failed to read GLTF file.', 'hint-err');
   };
   reader.readAsText(gltfFile);
 }
 
 function loadFbxFromUrl(url) {
+  setViewerMsg('Loading model...', 'hint-info');
   fbxLoader.load(
     url,
     (object) => {
@@ -407,15 +416,18 @@ function loadFbxFromUrl(url) {
       currentBounds = computeBounds(currentModel);
       fitCameraToBounds(currentBounds);
       applyLightSettings();
+      setViewerMsg('', 'hint-info');
     },
     undefined,
     (error) => {
       console.error('Failed to load FBX', error);
+      setViewerMsg(`Failed to load model: ${error?.message || String(error)}`, 'hint-err');
     }
   );
 }
 
 function loadFbxWithFiles(fbxFile, files) {
+  setViewerMsg('Loading model...', 'hint-info');
   const basePath = getBasePath(fbxFile);
   const { manager, objectUrls } = createFileManager(files, basePath);
   const scopedLoader = new FBXLoader(manager);
@@ -437,11 +449,13 @@ function loadFbxWithFiles(fbxFile, files) {
       fitCameraToBounds(currentBounds);
       applyLightSettings();
       objectUrls.forEach((objectUrl) => URL.revokeObjectURL(objectUrl));
+      setViewerMsg('', 'hint-info');
     },
     undefined,
     (error) => {
       console.error('Failed to load FBX', error);
       objectUrls.forEach((objectUrl) => URL.revokeObjectURL(objectUrl));
+      setViewerMsg(`Failed to load model: ${error?.message || String(error)}`, 'hint-err');
     }
   );
 }
@@ -709,7 +723,7 @@ function handleFiles(fileList) {
   }
 
   if (usdzFile) {
-    console.warn('USDZ is for iOS AR. It is not previewable in this viewer.');
+    setViewerMsg('USDZ is for iOS AR and is not previewable here. Use “View in AR”.', 'hint-warn');
     return;
   }
 
@@ -847,6 +861,18 @@ function setHintClass(el, kind) {
   if (kind) el.classList.add(kind);
 }
 
+function setViewerMsg(text, kind = 'hint-info') {
+  if (!viewerMsg) return;
+  if (!text) {
+    viewerMsg.classList.add('hidden');
+    viewerMsg.textContent = '';
+    return;
+  }
+  viewerMsg.classList.remove('hidden');
+  viewerMsg.textContent = text;
+  setHintClass(viewerMsg, kind);
+}
+
 function setArStatus(text, kind = 'hint-info') {
   if (arStatus) arStatus.textContent = text || '';
   setHintClass(arStatus, kind);
@@ -931,7 +957,10 @@ async function uploadForAr() {
   localStorage.setItem('sbKey', sbKey);
 
   if (!arGlbFile && !arUsdzFile) {
-    setArStatus('Upload at least a GLB file (USDZ optional).', 'hint-warn');
+    setArStatus(
+      'This upload is not AR-ready. Requirements: Android needs a .glb, iOS works best with a .usdz. Upload a GLB and/or USDZ using “Upload Model”.',
+      'hint-warn'
+    );
     return;
   }
   if (arGlbFile && extOf(arGlbFile.name) !== 'glb') {

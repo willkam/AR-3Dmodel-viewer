@@ -1,25 +1,25 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>View in AR</title>
+    <title>AR 查看</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="./ar.css" />
     <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
   </head>
   <body>
     <header class="top">
-      <a class="btn back" href="./">Back</a>
-      <div class="title">AR Viewer</div>
+      <a class="btn back" href="./">返回</a>
+      <div class="title">AR 查看器</div>
       <div class="top-actions">
-        <button id="shareModelBtn" class="btn btn-small" type="button" disabled>Share Model</button>
-        <button id="sharePageBtn" class="btn btn-small" type="button">Share Page</button>
+        <button id="shareModelBtn" class="btn btn-small" type="button" disabled>分享模型</button>
+        <button id="sharePageBtn" class="btn btn-small" type="button">分享页面</button>
       </div>
     </header>
 
     <main class="main">
-      <div id="status" class="status">Loading model...</div>
+      <div id="status" class="status">正在加载模型...</div>
 
       <model-viewer
         id="mv"
@@ -33,18 +33,18 @@
         shadow-intensity="0.6"
         exposure="1"
         environment-image="neutral"
-        alt="3D model"
+        alt="三维模型"
       >
-        <button slot="ar-button" class="arbtn">Enter AR</button>
+        <button slot="ar-button" class="arbtn">进入 AR</button>
       </model-viewer>
 
       <section class="help">
-        <div class="help-title">How to use</div>
-        <div class="help-text">Tap <span class="kbd">Enter AR</span>, then move your phone to detect a plane. Tap to place the model. Use gestures to move/rotate/scale.</div>
-        <div id="iosHint" class="help-text hidden">If you scanned in an in-app browser (WeChat/QQ), open this page in Safari, otherwise iOS AR may fail.</div>
+        <div class="help-title">使用说明</div>
+        <div class="help-text">点击 <span class="kbd">进入 AR</span>，移动手机以识别平面，点击放置模型。可用手势移动/旋转/缩放。</div>
+        <div id="iosHint" class="help-text hidden">如果是在微信/QQ 内置浏览器中打开，请改用 Safari 打开本页，否则 iOS AR 可能失败。</div>
         <div id="usdzRow" class="usdz hidden">
-          <a id="usdzLink" class="btn" href="#" rel="ar">Open USDZ</a>
-          <span class="help-text">If this fails, the USDZ file may be invalid or served with wrong headers.</span>
+          <a id="usdzLink" class="btn" href="#" rel="ar">打开 USDZ</a>
+          <span class="help-text">如果失败，可能是 USDZ 文件不兼容，或服务端响应头/权限不正确。</span>
         </div>
       </section>
     </main>
