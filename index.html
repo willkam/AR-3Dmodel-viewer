@@ -28,9 +28,16 @@
           </div>
         </div>
         <div class="top-actions">
-          <label class="btn file-btn">
-            <input id="fileInput" type="file" accept=".glb,.gltf,.fbx" multiple webkitdirectory />
-            Upload Folder / GLB / FBX
+          <label class="btn file-btn tooltip">
+            <input id="fileInput" type="file" accept=".glb,.gltf,.fbx,.usdz" multiple webkitdirectory />
+            Upload Model
+            <span class="tip" role="tooltip">
+              AR requirements:
+              <br />
+              Android WebXR uses GLB.
+              <br />
+              iOS AR works best with USDZ.
+            </span>
           </label>
           <button id="shareArBtn" class="btn">View in AR</button>
           <button id="descToggle" class="btn">Description</button>
@@ -99,7 +106,7 @@
               <span class="switch-label">Off</span>
             </div>
           </div>
-          <div id="dropHint" class="drop-hint">Drop GLB/GLTF/FBX + textures here</div>
+          <div id="dropHint" class="drop-hint">Drop GLB/GLTF/FBX/USDZ + textures here</div>
         </section>
 
         <aside id="descPanel" class="panel hidden">
@@ -137,17 +144,13 @@
             </div>
 
             <div class="field">
-              <div class="field-label">Upload for AR</div>
-              <div class="field-row">
-                <button id="pickArFilesBtn" class="btn">Choose GLB (and optional USDZ)</button>
-                <span id="arFilesLabel" class="field-help">No files selected</span>
-              </div>
-              <input id="arFilesInput" type="file" accept=".glb,.usdz" multiple hidden />
-              <div class="field-help">Android WebXR/Scene Viewer uses GLB. iOS AR works best with USDZ.</div>
+              <div class="field-label">Current Upload</div>
+              <div id="arFilesLabel" class="field-help">No model uploaded yet.</div>
+              <div id="arCompatHint" class="field-help"></div>
             </div>
 
             <div class="field">
-              <button id="uploadArBtn" class="btn">Upload & Generate QR</button>
+              <button id="uploadArBtn" class="btn">上传模型并通过 AR 查看</button>
               <div id="arStatus" class="field-help"></div>
             </div>
 
@@ -157,6 +160,7 @@
                 <input id="arLinkInput" class="field-input" readonly />
                 <button id="copyArLinkBtn" class="btn btn-ghost">Copy</button>
               </div>
+              <div id="arScanHint" class="field-help"></div>
             </div>
           </div>
         </div>

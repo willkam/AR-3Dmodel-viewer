@@ -21,15 +21,19 @@ html, body {
   height: 56px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 0 14px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   background: linear-gradient(90deg, rgba(246, 185, 59, 0.08), rgba(99, 205, 218, 0.06));
+  position: relative;
 }
 
 .title {
   font-weight: 700;
   letter-spacing: 0.4px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .btn {
@@ -42,10 +46,25 @@ html, body {
   font-weight: 600;
 }
 
+.btn:disabled {
+  opacity: 0.55;
+}
+
+.btn-small {
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+.top-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .main {
   height: calc(100% - 56px);
-  display: grid;
-  grid-template-rows: 1fr auto;
+  position: relative;
 }
 
 .status {
@@ -72,12 +91,13 @@ html, body {
 .arbtn {
   position: absolute;
   left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   border: none;
   border-radius: 999px;
-  padding: 12px 18px;
+  padding: 16px 26px;
   font-weight: 800;
+  font-size: 16px;
   letter-spacing: 0.3px;
   color: #141414;
   background: linear-gradient(120deg, var(--accent), #63cdda);
@@ -85,9 +105,17 @@ html, body {
 }
 
 .help {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 56px);
+  transform: translateX(-50%);
+  width: min(520px, calc(100% - 24px));
   padding: 12px 14px;
-  background: rgba(10, 14, 20, 0.85);
+  background: rgba(10, 14, 20, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  z-index: 3;
 }
 
 .help-title {
@@ -110,6 +138,16 @@ html, body {
   align-items: center;
   flex-wrap: wrap;
 }
+
+@media (max-height: 680px) {
+  .arbtn {
+    top: 44%;
+  }
+  .help {
+    top: calc(44% + 56px);
+  }
+}
+
 
 .kbd {
   display: inline-block;

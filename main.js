@@ -31,15 +31,15 @@ const arModal = document.getElementById('arModal');
 const arCloseBtn = document.getElementById('arCloseBtn');
 const sbUrlInput = document.getElementById('sbUrlInput');
 const sbKeyInput = document.getElementById('sbKeyInput');
-const pickArFilesBtn = document.getElementById('pickArFilesBtn');
-const arFilesInput = document.getElementById('arFilesInput');
 const arFilesLabel = document.getElementById('arFilesLabel');
+const arCompatHint = document.getElementById('arCompatHint');
 const uploadArBtn = document.getElementById('uploadArBtn');
 const arStatus = document.getElementById('arStatus');
 const arResult = document.getElementById('arResult');
 const arQrImg = document.getElementById('arQrImg');
 const arLinkInput = document.getElementById('arLinkInput');
 const copyArLinkBtn = document.getElementById('copyArLinkBtn');
+const arScanHint = document.getElementById('arScanHint');
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -676,9 +676,16 @@ function createFileManager(files, basePath = '') {
 function handleFiles(fileList) {
   const files = Array.from(fileList || []);
   if (!files.length) return;
+  const usdzFile = files.find((file) => file.name.toLowerCase().endsWith('.usdz'));
   const gltfFile = files.find((file) => file.name.toLowerCase().endsWith('.gltf'));
   const glbFile = files.find((file) => file.name.toLowerCase().endsWith('.glb'));
   const fbxFile = files.find((file) => file.name.toLowerCase().endsWith('.fbx'));
+
+  // Track AR-compatible assets from the same upload selection.
+  arGlbFile = glbFile || null;
+  arUsdzFile = usdzFile || null;
+  lastUploadLabel = (gltfFile || glbFile || fbxFile || usdzFile || files[0]).name;
+  updateArFilesLabel();
 
   if (gltfFile) {
     loadGltfWithFiles(gltfFile, files);
@@ -701,7 +708,12 @@ function handleFiles(fileList) {
     return;
   }
 
-  console.warn('Only GLB/GLTF supported.');
+  if (usdzFile) {
+    console.warn('USDZ is for iOS AR. It is not previewable in this viewer.');
+    return;
+  }
+
+  console.warn('Only GLB/GLTF/FBX supported for preview.');
 }
 
 fileInput.addEventListener('change', (event) => {
@@ -823,6 +835,7 @@ descSave.addEventListener('click', () => {
 
 let arGlbFile = null;
 let arUsdzFile = null;
+let lastUploadLabel = '';
 
 function normalizeSbUrl(value) {
   return String(value || '').trim().replace(/\/+$/, '');
@@ -840,14 +853,37 @@ function setModalOpen(open) {
 
 function updateArFilesLabel() {
   if (!arFilesLabel) return;
-  const names = [arGlbFile?.name, arUsdzFile?.name].filter(Boolean);
-  arFilesLabel.textContent = names.length ? names.join(' + ') : 'No files selected';
+  const names = [];
+  if (lastUploadLabel) names.push(lastUploadLabel);
+  if (arGlbFile?.name && arGlbFile.name !== lastUploadLabel) names.push(arGlbFile.name);
+  if (arUsdzFile?.name && arUsdzFile.name !== lastUploadLabel) names.push(arUsdzFile.name);
+  arFilesLabel.textContent = names.length ? names.join(' | ') : 'No model uploaded yet.';
+
+  if (arCompatHint) {
+    const okAndroid = !!arGlbFile;
+    const okIos = !!arUsdzFile;
+    if (uploadArBtn) uploadArBtn.disabled = !okAndroid && !okIos;
+    if (!okAndroid && !okIos) {
+      arCompatHint.textContent = 'AR: Please upload a GLB (Android) and/or USDZ (iOS) using “Upload Model”.';
+    } else if (okAndroid && okIos) {
+      arCompatHint.textContent = 'AR: Ready for Android (GLB) and iOS (USDZ).';
+    } else if (okAndroid) {
+      arCompatHint.textContent = 'AR: Android ready (GLB). iOS AR works best with USDZ.';
+    } else {
+      arCompatHint.textContent = 'AR: iOS ready (USDZ). Android WebXR uses GLB.';
+    }
+  }
 }
 
 function setArResult(url, qrDataUrl) {
   if (arResult) arResult.classList.toggle('hidden', !url);
   if (arLinkInput) arLinkInput.value = url || '';
   if (arQrImg) arQrImg.src = qrDataUrl || '';
+  if (arScanHint) {
+    arScanHint.textContent = url
+      ? '扫码提示：iOS 请用系统相机扫描；Android 可用相机或 Google Lens，或在 Chrome 打开链接。'
+      : '';
+  }
 }
 
 function getQrApi() {
@@ -981,18 +1017,19 @@ shareArBtn?.addEventListener('click', () => {
   setModalOpen(true);
 });
 
+sbUrlInput?.addEventListener('input', () => {
+  const v = normalizeSbUrl(sbUrlInput.value);
+  if (v) localStorage.setItem('sbUrl', v);
+});
+
+sbKeyInput?.addEventListener('input', () => {
+  const v = String(sbKeyInput.value || '').trim();
+  if (v) localStorage.setItem('sbKey', v);
+});
+
 arCloseBtn?.addEventListener('click', () => setModalOpen(false));
 arModal?.addEventListener('click', (e) => {
   if (e.target && e.target.dataset && e.target.dataset.close) setModalOpen(false);
-});
-
-pickArFilesBtn?.addEventListener('click', () => arFilesInput?.click());
-
-arFilesInput?.addEventListener('change', (e) => {
-  const files = Array.from(e.target.files || []);
-  arGlbFile = files.find((f) => f.name.toLowerCase().endsWith('.glb')) || null;
-  arUsdzFile = files.find((f) => f.name.toLowerCase().endsWith('.usdz')) || null;
-  updateArFilesLabel();
 });
 
 uploadArBtn?.addEventListener('click', () => uploadForAr());

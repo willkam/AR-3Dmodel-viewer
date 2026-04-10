@@ -25,6 +25,24 @@ function isInAppBrowser() {
   return /MicroMessenger|QQ\/|Weibo|DingTalk|AlipayClient|Taobao|toutiao|aweme/i.test(ua);
 }
 
+async function shareOrCopy({ title, text, url }) {
+  const shareData = { title, text, url };
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+      return true;
+    }
+  } catch {
+    // Fall back to copy.
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function main() {
   const p = qs();
   const id = p.get('id');
@@ -67,6 +85,33 @@ async function main() {
   if (usdzRow && usdzLink && urls.usdz) {
     usdzRow.classList.remove('hidden');
     usdzLink.href = urls.usdz;
+  }
+
+  const sharePageBtn = document.getElementById('sharePageBtn');
+  const shareModelBtn = document.getElementById('shareModelBtn');
+  const pageUrl = location.href;
+
+  sharePageBtn?.addEventListener('click', async () => {
+    const ok = await shareOrCopy({
+      title: 'AR Viewer',
+      text: 'Open this AR viewer page.',
+      url: pageUrl,
+    });
+    setStatus(ok ? 'Shared page.' : 'Share failed.');
+  });
+
+  if (shareModelBtn) {
+    shareModelBtn.disabled = !(urls.usdz || urls.glb);
+    shareModelBtn.addEventListener('click', async () => {
+      const best = isIOS() ? (urls.usdz || urls.glb) : (urls.glb || urls.usdz);
+      if (!best) return;
+      const ok = await shareOrCopy({
+        title: '3D Model',
+        text: 'Open the model file.',
+        url: best,
+      });
+      setStatus(ok ? 'Shared model.' : 'Share failed.');
+    });
   }
 
   if (isIOS() && !urls.usdz) {

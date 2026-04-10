@@ -235,6 +235,50 @@ body {
   display: none;
 }
 
+.tooltip {
+  position: relative;
+}
+
+.tip {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: max-content;
+  max-width: 260px;
+  background: rgba(15, 19, 25, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.35;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+  z-index: 20;
+}
+
+.tip::before {
+  content: '';
+  position: absolute;
+  right: 18px;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  background: rgba(15, 19, 25, 0.92);
+  transform: rotate(45deg);
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.tooltip:hover .tip,
+.tooltip:focus-within .tip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .chip {
   padding: 6px 12px;
   font-size: 12px;
