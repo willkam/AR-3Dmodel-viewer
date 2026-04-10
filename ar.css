@@ -101,6 +101,16 @@ html, body {
   line-height: 1.35;
 }
 
+.hidden { display: none; }
+
+.usdz {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .kbd {
   display: inline-block;
   padding: 0 8px;

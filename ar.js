@@ -20,6 +20,11 @@ function isIOS() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 }
 
+function isInAppBrowser() {
+  const ua = navigator.userAgent || '';
+  return /MicroMessenger|QQ\/|Weibo|DingTalk|AlipayClient|Taobao|toutiao|aweme/i.test(ua);
+}
+
 async function main() {
   const p = qs();
   const id = p.get('id');
@@ -53,6 +58,16 @@ async function main() {
   // Prefer iOS Quick Look via USDZ when available.
   if (urls.glb) mv.setAttribute('src', urls.glb);
   if (urls.usdz) mv.setAttribute('ios-src', urls.usdz);
+
+  const iosHint = document.getElementById('iosHint');
+  if (iosHint && isIOS() && isInAppBrowser()) iosHint.classList.remove('hidden');
+
+  const usdzRow = document.getElementById('usdzRow');
+  const usdzLink = document.getElementById('usdzLink');
+  if (usdzRow && usdzLink && urls.usdz) {
+    usdzRow.classList.remove('hidden');
+    usdzLink.href = urls.usdz;
+  }
 
   if (isIOS() && !urls.usdz) {
     setStatus('iOS AR works best with USDZ. This share has no USDZ file.');
