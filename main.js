@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { USDZLoader } from 'three/addons/loaders/USDZLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import QRCode from 'qrcode';
 import { createClient } from '@supabase/supabase-js';
@@ -93,6 +94,7 @@ scene.add(fillLight);
 
 const loader = new GLTFLoader();
 const fbxLoader = new FBXLoader();
+const usdzLoader = new USDZLoader();
 const textureLoader = new THREE.TextureLoader();
 
 let currentModel = null;
@@ -460,6 +462,40 @@ function loadFbxWithFiles(fbxFile, files) {
   );
 }
 
+function loadUsdzFromUrl(url) {
+  setViewerMsg('正在加载模型...', 'hint-info');
+  const done = () => {
+    try {
+      URL.revokeObjectURL(url);
+    } catch {
+      // ignore
+    }
+  };
+  usdzLoader.load(
+    url,
+    (object) => {
+      clearModel();
+      currentModel = object;
+      setBaseTransform(currentModel);
+      applyYAxisFlip(currentModel, yAxisFlipped);
+      rememberOriginalMaterials(currentModel);
+      swapMaterials(currentModel, materialEnabled);
+      scene.add(currentModel);
+      currentBounds = computeBounds(currentModel);
+      fitCameraToBounds(currentBounds);
+      applyLightSettings();
+      setViewerMsg('', 'hint-info');
+      done();
+    },
+    undefined,
+    (error) => {
+      console.error('Failed to load USDZ', error);
+      setViewerMsg(`模型加载失败：${error?.message || String(error)}`, 'hint-err');
+      done();
+    }
+  );
+}
+
 function autoApplyPbrTextures(object, files) {
   if (!object || !files || !files.length) return;
 
@@ -723,11 +759,13 @@ function handleFiles(fileList) {
   }
 
   if (usdzFile) {
-    setViewerMsg('USDZ 用于 iOS AR，当前预览区不直接渲染，请使用“AR 查看”。', 'hint-warn');
+    const url = URL.createObjectURL(usdzFile);
+    loadUsdzFromUrl(url);
     return;
   }
 
-  console.warn('预览仅支持 GLB/GLTF/FBX。');
+  console.warn('预览仅支持 GLB/GLTF/FBX/USDZ。');
+  setViewerMsg('无法识别模型格式，请上传 GLB/GLTF/FBX/USDZ。', 'hint-err');
 }
 
 fileInput.addEventListener('change', (event) => {
