@@ -93,11 +93,11 @@ async function main() {
 
   sharePageBtn?.addEventListener('click', async () => {
     const ok = await shareOrCopy({
-      title: 'AR Viewer',
-      text: 'Open this AR viewer page.',
+      title: 'AR 查看器',
+      text: '打开这个 AR 查看页面。',
       url: pageUrl,
     });
-    setStatus(ok ? 'Shared page.' : 'Share failed.');
+    setStatus(ok ? '页面已分享。' : '分享失败。');
   });
 
   if (shareModelBtn) {
@@ -106,11 +106,11 @@ async function main() {
       const best = isIOS() ? (urls.usdz || urls.glb) : (urls.glb || urls.usdz);
       if (!best) return;
       const ok = await shareOrCopy({
-        title: '3D Model',
-        text: 'Open the model file.',
+        title: '三维模型',
+        text: '打开这个模型文件。',
         url: best,
       });
-      setStatus(ok ? 'Shared model.' : 'Share failed.');
+      setStatus(ok ? '模型已分享。' : '分享失败。');
     });
   }
 

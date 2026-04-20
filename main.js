@@ -335,7 +335,7 @@ function clearModel() {
 }
 
 function loadGltfFromUrl(url) {
-  setViewerMsg('Loading model...', 'hint-info');
+  setViewerMsg('正在加载模型...', 'hint-info');
   loader.load(
     url,
     (gltf) => {
@@ -354,13 +354,13 @@ function loadGltfFromUrl(url) {
     undefined,
     (error) => {
       console.error('Failed to load model', error);
-      setViewerMsg(`Failed to load model: ${error?.message || String(error)}`, 'hint-err');
+      setViewerMsg(`模型加载失败：${error?.message || String(error)}`, 'hint-err');
     }
   );
 }
 
 function loadGltfWithFiles(gltfFile, files) {
-  setViewerMsg('Loading model...', 'hint-info');
+  setViewerMsg('正在加载模型...', 'hint-info');
   const basePath = getBasePath(gltfFile);
   const { manager, objectUrls } = createFileManager(files, basePath);
 
@@ -388,7 +388,7 @@ function loadGltfWithFiles(gltfFile, files) {
       (error) => {
         console.error('Failed to parse GLTF', error);
         objectUrls.forEach((url) => URL.revokeObjectURL(url));
-        setViewerMsg(`Failed to load model: ${error?.message || String(error)}`, 'hint-err');
+        setViewerMsg(`模型加载失败：${error?.message || String(error)}`, 'hint-err');
       }
     );
   };
@@ -401,7 +401,7 @@ function loadGltfWithFiles(gltfFile, files) {
 }
 
 function loadFbxFromUrl(url) {
-  setViewerMsg('Loading model...', 'hint-info');
+  setViewerMsg('正在加载模型...', 'hint-info');
   fbxLoader.load(
     url,
     (object) => {
@@ -421,13 +421,13 @@ function loadFbxFromUrl(url) {
     undefined,
     (error) => {
       console.error('Failed to load FBX', error);
-      setViewerMsg(`Failed to load model: ${error?.message || String(error)}`, 'hint-err');
+      setViewerMsg(`模型加载失败：${error?.message || String(error)}`, 'hint-err');
     }
   );
 }
 
 function loadFbxWithFiles(fbxFile, files) {
-  setViewerMsg('Loading model...', 'hint-info');
+  setViewerMsg('正在加载模型...', 'hint-info');
   const basePath = getBasePath(fbxFile);
   const { manager, objectUrls } = createFileManager(files, basePath);
   const scopedLoader = new FBXLoader(manager);
@@ -455,7 +455,7 @@ function loadFbxWithFiles(fbxFile, files) {
     (error) => {
       console.error('Failed to load FBX', error);
       objectUrls.forEach((objectUrl) => URL.revokeObjectURL(objectUrl));
-      setViewerMsg(`Failed to load model: ${error?.message || String(error)}`, 'hint-err');
+      setViewerMsg(`模型加载失败：${error?.message || String(error)}`, 'hint-err');
     }
   );
 }
@@ -723,11 +723,11 @@ function handleFiles(fileList) {
   }
 
   if (usdzFile) {
-    setViewerMsg('USDZ is for iOS AR and is not previewable here. Use “View in AR”.', 'hint-warn');
+    setViewerMsg('USDZ 用于 iOS AR，当前预览区不直接渲染，请使用“AR 查看”。', 'hint-warn');
     return;
   }
 
-  console.warn('Only GLB/GLTF/FBX supported for preview.');
+  console.warn('预览仅支持 GLB/GLTF/FBX。');
 }
 
 fileInput.addEventListener('change', (event) => {
@@ -751,12 +751,12 @@ fitBtn.addEventListener('click', () => resetView());
 
 autoRotateBtn.addEventListener('click', () => {
   controls.autoRotate = !controls.autoRotate;
-  autoRotateBtn.textContent = controls.autoRotate ? 'Stop Rotate' : 'Auto Rotate';
+  autoRotateBtn.textContent = controls.autoRotate ? '停止旋转' : '自动旋转';
 });
 
 yAxisBtn.addEventListener('click', () => {
   yAxisFlipped = !yAxisFlipped;
-  yAxisBtn.textContent = yAxisFlipped ? 'Y+ Fixed' : 'Fix Y+';
+  yAxisBtn.textContent = yAxisFlipped ? 'Y+ 已修正' : '修正 Y+';
   if (currentModel) {
     applyYAxisFlip(currentModel, yAxisFlipped);
     currentBounds = computeBounds(currentModel);
@@ -766,7 +766,7 @@ yAxisBtn.addEventListener('click', () => {
 
 envToggleBtn.addEventListener('click', () => {
   envEnabled = !envEnabled;
-  envToggleBtn.textContent = envEnabled ? 'Env Light On' : 'Env Light Off';
+  envToggleBtn.textContent = envEnabled ? '环境光：开' : '环境光：关';
   scene.environment = envEnabled ? envTexture : null;
   setLightControlsEnabled(envEnabled);
   applyLightSettings();
@@ -787,14 +787,14 @@ lightTemp.addEventListener('input', () => {
 materialToggle.addEventListener('change', () => {
   materialEnabled = materialToggle.checked;
   const label = materialToggle.closest('.hud-group').querySelector('.switch-label');
-  label.textContent = materialEnabled ? 'On' : 'Off';
+  label.textContent = materialEnabled ? '开' : '关';
   if (currentModel) swapMaterials(currentModel, materialEnabled);
 });
 
 wireToggle.addEventListener('change', () => {
   wireframeEnabled = wireToggle.checked;
   const label = wireToggle.closest('.hud-group').querySelector('.switch-label');
-  label.textContent = wireframeEnabled ? 'On' : 'Off';
+  label.textContent = wireframeEnabled ? '开' : '关';
   if (currentModel) {
     currentModel.traverse((child) => {
       if (child.isMesh) applyWireframe(child.material, wireframeEnabled);
@@ -890,7 +890,7 @@ function updateArFilesLabel() {
   if (lastUploadLabel) names.push(lastUploadLabel);
   if (arGlbFile?.name && arGlbFile.name !== lastUploadLabel) names.push(arGlbFile.name);
   if (arUsdzFile?.name && arUsdzFile.name !== lastUploadLabel) names.push(arUsdzFile.name);
-  arFilesLabel.textContent = names.length ? names.join(' | ') : 'No model uploaded yet.';
+  arFilesLabel.textContent = names.length ? names.join(' | ') : '尚未上传模型。';
 
   if (arCompatHint) {
     const okAndroid = !!arGlbFile;
@@ -898,16 +898,16 @@ function updateArFilesLabel() {
     if (uploadArBtn) uploadArBtn.disabled = !okAndroid && !okIos;
     if (!okAndroid && !okIos) {
       setHintClass(arCompatHint, 'hint-warn');
-      arCompatHint.textContent = 'AR: Please upload a GLB (Android) and/or USDZ (iOS) using “Upload Model”.';
+      arCompatHint.textContent = 'AR 未就绪：请通过“上传模型”上传 GLB（Android）和/或 USDZ（iOS）。';
     } else if (okAndroid && okIos) {
       setHintClass(arCompatHint, 'hint-ok');
-      arCompatHint.textContent = 'AR: Ready for Android (GLB) and iOS (USDZ).';
+      arCompatHint.textContent = 'AR 已就绪：Android（GLB）和 iOS（USDZ）均可查看。';
     } else if (okAndroid) {
       setHintClass(arCompatHint, 'hint-warn');
-      arCompatHint.textContent = 'AR: Android ready (GLB). iOS AR works best with USDZ.';
+      arCompatHint.textContent = 'AR 部分就绪：Android 可查看（GLB），iOS 建议补充 USDZ。';
     } else {
       setHintClass(arCompatHint, 'hint-warn');
-      arCompatHint.textContent = 'AR: iOS ready (USDZ). Android WebXR uses GLB.';
+      arCompatHint.textContent = 'AR 部分就绪：iOS 可查看（USDZ），Android 需补充 GLB。';
     }
   }
 }
@@ -918,7 +918,7 @@ function setArResult(url, qrDataUrl) {
   if (arQrImg) arQrImg.src = qrDataUrl || '';
   if (arScanHint) {
     arScanHint.textContent = url
-      ? 'Scan tips: iOS use the default Camera app. Android use Camera or Google Lens, or open the link in Chrome.'
+      ? '扫码提示：iOS 请用系统相机扫描；Android 可用相机或 Google Lens，或在 Chrome 打开链接。'
       : '';
     setHintClass(arScanHint, 'hint-info');
   }
@@ -945,11 +945,11 @@ async function uploadForAr() {
   const bucket = 'models';
 
   if (!sbUrl || !/^https?:\/\//i.test(sbUrl)) {
-    setArStatus('Please set a valid Supabase Project URL.', 'hint-err');
+    setArStatus('请填写有效的 Supabase 项目 URL。', 'hint-err');
     return;
   }
   if (!sbKey || !sbKey.startsWith('sb_')) {
-    setArStatus('Please set a valid Supabase publishable key.', 'hint-err');
+    setArStatus('请填写有效的 Supabase 公钥（Publishable Key）。', 'hint-err');
     return;
   }
 
@@ -958,21 +958,21 @@ async function uploadForAr() {
 
   if (!arGlbFile && !arUsdzFile) {
     setArStatus(
-      'This upload is not AR-ready. Requirements: Android needs a .glb, iOS works best with a .usdz. Upload a GLB and/or USDZ using “Upload Model”.',
+      '当前上传不满足 AR 要求：Android 需要 .glb，iOS 建议 .usdz。请先通过“上传模型”上传后再生成二维码。',
       'hint-warn'
     );
     return;
   }
   if (arGlbFile && extOf(arGlbFile.name) !== 'glb') {
-    setArStatus('GLB file must end with .glb', 'hint-err');
+    setArStatus('GLB 文件后缀必须为 .glb。', 'hint-err');
     return;
   }
   if (arUsdzFile && extOf(arUsdzFile.name) !== 'usdz') {
-    setArStatus('USDZ file must end with .usdz', 'hint-err');
+    setArStatus('USDZ 文件后缀必须为 .usdz。', 'hint-err');
     return;
   }
 
-  setArStatus('Uploading to Supabase Storage...', 'hint-info');
+  setArStatus('正在上传到 Supabase Storage...', 'hint-info');
   setArResult('', '');
   uploadArBtn.disabled = true;
 
@@ -987,7 +987,7 @@ async function uploadForAr() {
     };
 
     if (arGlbFile) {
-      setArStatus('Uploading GLB...', 'hint-info');
+      setArStatus('正在上传 GLB...', 'hint-info');
       const { error } = await supabase.storage.from(bucket).upload(paths.glb, arGlbFile, {
         upsert: false,
         contentType: 'model/gltf-binary',
@@ -997,7 +997,7 @@ async function uploadForAr() {
     }
 
     if (arUsdzFile) {
-      setArStatus('Uploading USDZ...', 'hint-info');
+      setArStatus('正在上传 USDZ...', 'hint-info');
       const { error } = await supabase.storage.from(bucket).upload(paths.usdz, arUsdzFile, {
         upsert: false,
         contentType: 'model/vnd.usdz+zip',
@@ -1017,7 +1017,7 @@ async function uploadForAr() {
       urls,
     };
 
-    setArStatus('Writing manifest...', 'hint-info');
+    setArStatus('正在写入清单...', 'hint-info');
     const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
     {
       const { error } = await supabase.storage.from(bucket).upload(paths.manifest, manifestBlob, {
@@ -1035,13 +1035,13 @@ async function uploadForAr() {
 
     const qrApi = getQrApi();
     if (!qrApi) throw new Error('QR library not available');
-    setArStatus('Generating QR...', 'hint-info');
+    setArStatus('正在生成二维码...', 'hint-info');
     const qrDataUrl = await qrApi.toDataURL(arUrl.toString(), { margin: 1, width: 360 });
 
     setArResult(arUrl.toString(), qrDataUrl);
-    setArStatus('Ready.', 'hint-ok');
+    setArStatus('已完成，可扫码进入 AR。', 'hint-ok');
   } catch (err) {
-    setArStatus(`Error: ${String(err && err.message ? err.message : err)}`, 'hint-err');
+    setArStatus(`错误：${String(err && err.message ? err.message : err)}`, 'hint-err');
   } finally {
     uploadArBtn.disabled = false;
   }
@@ -1080,10 +1080,10 @@ copyArLinkBtn?.addEventListener('click', async () => {
   if (!v) return;
   try {
     await navigator.clipboard.writeText(v);
-    setArStatus('Copied.', 'hint-ok');
+    setArStatus('已复制。', 'hint-ok');
     setTimeout(() => setArStatus(''), 900);
   } catch {
-    setArStatus('Copy failed. Long-press to copy.', 'hint-err');
+    setArStatus('复制失败，请长按链接手动复制。', 'hint-err');
   }
 });
 

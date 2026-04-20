@@ -29,11 +29,11 @@
         </div>
         <div class="top-actions">
           <label class="btn btn-upload file-btn">
-            <input id="fileInput" type="file" accept=".glb,.gltf,.fbx,.usdz" multiple />
+            <input id="fileInput" type="file" accept=".glb,.gltf,.fbx,.usdz,.bin,.png,.jpg,.jpeg,.webp,.ktx2,.ktx,.tga" multiple />
             上传模型
           </label>
           <span class="upload-hint">
-            <span class="hint-info">提示：可将文件夹拖到预览区导入多文件。</span>
+            <span class="hint-info">提示：可一次选择模型及贴图/二进制文件，或将文件夹拖到预览区导入。</span>
             <span class="hint-warn">AR 要求：Android WebXR 使用 GLB；iOS AR 最佳为 USDZ。</span>
           </span>
           <button id="shareArBtn" class="btn">AR 查看</button>
@@ -122,7 +122,7 @@
 
       <div id="arModal" class="modal hidden" aria-hidden="true">
         <div class="modal-backdrop" data-close="1"></div>
-        <div class="modal-card" role="dialog" aria-modal="true" aria-label="View in AR">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-label="AR 查看">
           <div class="modal-head">
             <div class="modal-title">AR 查看</div>
             <button id="arCloseBtn" class="btn btn-ghost">关闭</button>
@@ -153,7 +153,7 @@
             </div>
 
             <div id="arResult" class="ar-result hidden">
-              <img id="arQrImg" class="qr" alt="QR code" />
+              <img id="arQrImg" class="qr" alt="二维码" />
               <div class="ar-link">
                 <input id="arLinkInput" class="field-input" readonly />
                 <button id="copyArLinkBtn" class="btn btn-ghost">复制</button>
