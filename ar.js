@@ -50,20 +50,20 @@ async function main() {
   const bucket = p.get('bucket') || 'models';
 
   if (!id) {
-    setStatus('缺少模型 id。');
+    setStatus('Missing model id.');
     return;
   }
   if (!sbUrl) {
-    setStatus('缺少 Supabase URL。请在链接中添加 ?sb=https://你的项目.supabase.co');
+    setStatus('Missing Supabase URL. Add ?sb=https://YOUR_PROJECT.supabase.co');
     return;
   }
 
-  setStatus('正在获取清单...');
+  setStatus('Loading manifest...');
 
   const manifestUrl = `${sbUrl}/storage/v1/object/public/${encodeURIComponent(bucket)}/manifests/${encodeURIComponent(id)}.json`;
   const res = await fetch(manifestUrl, { mode: 'cors' });
   if (!res.ok) {
-    setStatus(`未找到模型（${res.status}）。`);
+    setStatus(`Model not found (${res.status}).`);
     return;
   }
 
@@ -93,11 +93,11 @@ async function main() {
 
   sharePageBtn?.addEventListener('click', async () => {
     const ok = await shareOrCopy({
-      title: 'AR 查看器',
-      text: '打开这个 AR 查看页面。',
+      title: 'AR Viewer',
+      text: 'Open this AR viewer page.',
       url: pageUrl,
     });
-    setStatus(ok ? '页面已分享。' : '分享失败。');
+    setStatus(ok ? 'Page shared.' : 'Share failed.');
   });
 
   if (shareModelBtn) {
@@ -106,21 +106,21 @@ async function main() {
       const best = isIOS() ? (urls.usdz || urls.glb) : (urls.glb || urls.usdz);
       if (!best) return;
       const ok = await shareOrCopy({
-        title: '三维模型',
-        text: '打开这个模型文件。',
+        title: '3D Model',
+        text: 'Open this model file.',
         url: best,
       });
-      setStatus(ok ? '模型已分享。' : '分享失败。');
+      setStatus(ok ? 'Model shared.' : 'Share failed.');
     });
   }
 
   if (isIOS() && !urls.usdz) {
-    setStatus('iOS AR 最佳为 USDZ。本次分享未包含 USDZ。');
+    setStatus('iOS AR works best with USDZ. This share does not include USDZ.');
   } else {
-    setStatus('已就绪。');
+    setStatus('Ready.');
   }
 }
 
 main().catch((err) => {
-  setStatus(`错误：${String(err && err.message ? err.message : err)}`);
+  setStatus(`Error: ${String(err && err.message ? err.message : err)}`);
 });
