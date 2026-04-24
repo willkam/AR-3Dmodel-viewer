@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>3D Model Viewer</title>
+    <title>三维模型查看器</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="./style.css" />
     <script type="importmap">
@@ -23,21 +23,21 @@
         <div class="brand">
           <div class="brand-mark"></div>
           <div class="brand-text">
-            <div class="brand-title">3D Model Viewer</div>
-            <div class="brand-sub">Material + Orbit Preview</div>
+            <div class="brand-title">三维模型查看器</div>
+            <div class="brand-sub">材质渲染 + 轨道预览</div>
           </div>
         </div>
         <div class="top-actions">
           <label class="btn btn-upload file-btn">
             <input id="fileInput" type="file" accept=".glb,.gltf,.fbx,.usdz,.bin,.png,.jpg,.jpeg,.webp,.ktx2,.ktx,.tga" multiple />
-            Upload Model
+            上传模型
           </label>
           <span class="upload-hint">
-            <span class="hint-info">Tip: select model files plus textures/bin together, or drag a folder into the viewer.</span>
-            <span class="hint-warn">AR requirements: Android WebXR uses GLB. iOS AR works best with USDZ.</span>
+            <span class="hint-info">提示：可选择模型及贴图/bin 一起上传，或将文件夹拖拽到视图中导入。</span>
+            <span class="hint-warn">AR 要求：Android WebXR 使用 GLB；iOS AR 最佳格式为 USDZ。</span>
           </span>
-          <button id="shareArBtn" class="btn">View in AR</button>
-          <button id="descToggle" class="btn">Description</button>
+          <button id="shareArBtn" class="btn">AR 查看</button>
+          <button id="descToggle" class="btn">说明</button>
         </div>
       </header>
 
@@ -46,30 +46,30 @@
           <canvas id="sceneCanvas"></canvas>
           <div id="viewerMsg" class="viewer-msg hidden"></div>
           <div class="side-controls">
-            <button id="autoRotateBtn" class="btn btn-secondary">Auto Rotate</button>
-            <button id="fitBtn" class="btn btn-secondary">Reset View</button>
-            <button id="yAxisBtn" class="btn btn-secondary">Fix Y+</button>
+            <button id="autoRotateBtn" class="btn btn-secondary">自动旋转</button>
+            <button id="fitBtn" class="btn btn-secondary">重置视图</button>
+            <button id="yAxisBtn" class="btn btn-secondary">修正 Y+</button>
             <div class="side-block">
-              <div class="side-label">Background</div>
+              <div class="side-label">背景</div>
               <div class="side-chips" id="bgMode">
-                <button class="chip chip-light" data-bg="default">Default</button>
-                <button class="chip chip-light" data-bg="light">Light Gray</button>
-                <button class="chip chip-light" data-bg="dark">Dark Gray</button>
-                <button class="chip chip-light" data-bg="gradient">Gradient Gray</button>
+                <button class="chip chip-light" data-bg="default">默认</button>
+                <button class="chip chip-light" data-bg="light">浅灰</button>
+                <button class="chip chip-light" data-bg="dark">深灰</button>
+                <button class="chip chip-light" data-bg="gradient">渐变灰</button>
               </div>
             </div>
             <div class="side-block">
-              <button id="envToggleBtn" class="btn btn-secondary">Env Light: On</button>
+              <button id="envToggleBtn" class="btn btn-secondary">环境光：开</button>
               <div class="side-slider">
                 <div class="side-label">
-                  Light Intensity
+                  光照强度
                   <span id="lightIntensityValue" class="side-value">1.00</span>
                 </div>
                 <input id="lightIntensity" type="range" min="0" max="2" step="0.05" value="1" />
               </div>
               <div class="side-slider">
                 <div class="side-label">
-                  Light Temp (K)
+                  色温 (K)
                   <span id="lightTempValue" class="side-value">6500</span>
                 </div>
                 <input id="lightTemp" type="range" min="2500" max="10000" step="100" value="6500" />
@@ -78,85 +78,85 @@
           </div>
           <div class="hud">
             <div class="hud-group">
-              <span class="hud-label">View</span>
-              <button data-view="perspective" class="chip active">Perspective</button>
-              <button data-view="front" class="chip">Front</button>
-              <button data-view="back" class="chip">Back</button>
-              <button data-view="left" class="chip">Left</button>
-              <button data-view="right" class="chip">Right</button>
-              <button data-view="top" class="chip">Top</button>
-              <button data-view="bottom" class="chip">Bottom</button>
+              <span class="hud-label">视角</span>
+              <button data-view="perspective" class="chip active">透视</button>
+              <button data-view="front" class="chip">前</button>
+              <button data-view="back" class="chip">后</button>
+              <button data-view="left" class="chip">左</button>
+              <button data-view="right" class="chip">右</button>
+              <button data-view="top" class="chip">上</button>
+              <button data-view="bottom" class="chip">下</button>
             </div>
             <div class="hud-group">
-              <span class="hud-label">Material</span>
+              <span class="hud-label">材质</span>
               <label class="switch">
                 <input id="materialToggle" type="checkbox" checked />
                 <span class="slider"></span>
               </label>
-              <span class="switch-label">On</span>
+              <span class="switch-label">开</span>
             </div>
             <div class="hud-group">
-              <span class="hud-label">Wireframe</span>
+              <span class="hud-label">线框</span>
               <label class="switch">
                 <input id="wireToggle" type="checkbox" />
                 <span class="slider"></span>
               </label>
-              <span class="switch-label">Off</span>
+              <span class="switch-label">关</span>
             </div>
           </div>
-          <div id="dropHint" class="drop-hint">Drop GLB/GLTF/FBX/USDZ (+ textures) here</div>
+          <div id="dropHint" class="drop-hint">拖拽 GLB/GLTF/FBX/USDZ（含贴图）到此处</div>
         </section>
 
         <aside id="descPanel" class="panel hidden">
           <div class="panel-header">
-            <div class="panel-title">Model Description</div>
-            <button id="descClose" class="btn btn-ghost">Close</button>
+            <div class="panel-title">模型说明</div>
+            <button id="descClose" class="btn btn-ghost">关闭</button>
           </div>
-          <textarea id="descText" placeholder="Write notes about this model, materials, or usage."></textarea>
+          <textarea id="descText" placeholder="记录模型说明、材质信息或使用备注。"></textarea>
           <div class="panel-footer">
-            <button id="descSave" class="btn">Save</button>
-            <span id="descSaved" class="status">Saved</span>
+            <button id="descSave" class="btn">保存</button>
+            <span id="descSaved" class="status">已保存</span>
           </div>
         </aside>
       </main>
 
       <div id="arModal" class="modal hidden" aria-hidden="true">
         <div class="modal-backdrop" data-close="1"></div>
-        <div class="modal-card" role="dialog" aria-modal="true" aria-label="View in AR">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-label="AR 查看">
           <div class="modal-head">
-            <div class="modal-title">View in AR</div>
-            <button id="arCloseBtn" class="btn btn-ghost">Close</button>
+            <div class="modal-title">AR 查看</div>
+            <button id="arCloseBtn" class="btn btn-ghost">关闭</button>
           </div>
 
           <div class="modal-body">
             <div class="field">
-              <label class="field-label" for="sbUrlInput">Supabase Project URL</label>
+              <label class="field-label" for="sbUrlInput">Supabase 项目 URL</label>
               <input id="sbUrlInput" class="field-input" placeholder="https://xxxx.supabase.co" />
-              <div class="field-help">Saved locally in this browser. Used for upload and serving files via Storage.</div>
+              <div class="field-help">会保存在当前浏览器，用于上传和读取 Storage 文件。</div>
             </div>
 
             <div class="field">
-              <label class="field-label" for="sbKeyInput">Supabase Publishable Key</label>
+              <label class="field-label" for="sbKeyInput">Supabase 公钥（Publishable Key）</label>
               <input id="sbKeyInput" class="field-input" placeholder="sb_publishable_..." />
-              <div class="field-help">Use the publishable key, not the secret key.</div>
+              <div class="field-help">请使用公钥，不要使用 secret key。</div>
             </div>
 
             <div class="field">
-              <div class="field-label">Current Upload</div>
-              <div id="arFilesLabel" class="field-help hint-info">No model uploaded yet.</div>
+              <div class="field-label">当前上传</div>
+              <div id="arFilesLabel" class="field-help hint-info">尚未上传模型。</div>
               <div id="arCompatHint" class="field-help hint-warn"></div>
             </div>
 
             <div class="field">
-              <button id="uploadArBtn" class="btn">Upload Model and Generate AR QR</button>
+              <button id="uploadArBtn" class="btn">上传模型并生成 AR 二维码</button>
               <div id="arStatus" class="field-help hint-info"></div>
             </div>
 
             <div id="arResult" class="ar-result hidden">
-              <img id="arQrImg" class="qr" alt="QR code" />
+              <img id="arQrImg" class="qr" alt="二维码" />
               <div class="ar-link">
                 <input id="arLinkInput" class="field-input" readonly />
-                <button id="copyArLinkBtn" class="btn btn-ghost">Copy</button>
+                <button id="copyArLinkBtn" class="btn btn-ghost">复制</button>
               </div>
               <div id="arScanHint" class="field-help hint-info"></div>
             </div>

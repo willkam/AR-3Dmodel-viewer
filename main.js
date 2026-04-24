@@ -337,7 +337,7 @@ function clearModel() {
 }
 
 function loadGltfFromUrl(url) {
-  setViewerMsg('Loading model...', 'hint-info');
+  setViewerMsg('正在加载模型...', 'hint-info');
   loader.load(
     url,
     (gltf) => {
@@ -356,13 +356,13 @@ function loadGltfFromUrl(url) {
     undefined,
     (error) => {
       console.error('Failed to load model', error);
-      setViewerMsg(`Model load failed: ${error?.message || String(error)}`, 'hint-err');
+      setViewerMsg(`模型加载失败：${error?.message || String(error)}`, 'hint-err');
     }
   );
 }
 
 function loadGltfWithFiles(gltfFile, files) {
-  setViewerMsg('Loading model...', 'hint-info');
+  setViewerMsg('正在加载模型...', 'hint-info');
   const basePath = getBasePath(gltfFile);
   const { manager, objectUrls } = createFileManager(files, basePath);
 
@@ -390,20 +390,20 @@ function loadGltfWithFiles(gltfFile, files) {
       (error) => {
         console.error('Failed to parse GLTF', error);
         objectUrls.forEach((url) => URL.revokeObjectURL(url));
-        setViewerMsg(`Model load failed: ${error?.message || String(error)}`, 'hint-err');
+        setViewerMsg(`模型加载失败：${error?.message || String(error)}`, 'hint-err');
       }
     );
   };
   reader.onerror = () => {
     console.error('Failed to read GLTF file');
     objectUrls.forEach((url) => URL.revokeObjectURL(url));
-    setViewerMsg('Failed to read GLTF file.', 'hint-err');
+    setViewerMsg('读取 GLTF 文件失败。', 'hint-err');
   };
   reader.readAsText(gltfFile);
 }
 
 function loadFbxFromUrl(url) {
-  setViewerMsg('Loading model...', 'hint-info');
+  setViewerMsg('正在加载模型...', 'hint-info');
   fbxLoader.load(
     url,
     (object) => {
@@ -423,13 +423,13 @@ function loadFbxFromUrl(url) {
     undefined,
     (error) => {
       console.error('Failed to load FBX', error);
-      setViewerMsg(`Model load failed: ${error?.message || String(error)}`, 'hint-err');
+      setViewerMsg(`模型加载失败：${error?.message || String(error)}`, 'hint-err');
     }
   );
 }
 
 function loadFbxWithFiles(fbxFile, files) {
-  setViewerMsg('Loading model...', 'hint-info');
+  setViewerMsg('正在加载模型...', 'hint-info');
   const basePath = getBasePath(fbxFile);
   const { manager, objectUrls } = createFileManager(files, basePath);
   const scopedLoader = new FBXLoader(manager);
@@ -457,7 +457,7 @@ function loadFbxWithFiles(fbxFile, files) {
     (error) => {
       console.error('Failed to load FBX', error);
       objectUrls.forEach((objectUrl) => URL.revokeObjectURL(objectUrl));
-      setViewerMsg(`Model load failed: ${error?.message || String(error)}`, 'hint-err');
+      setViewerMsg(`模型加载失败：${error?.message || String(error)}`, 'hint-err');
     }
   );
 }
@@ -466,7 +466,7 @@ async function diagnoseUsdzFile(file) {
   const warnings = [];
   const errors = [];
   if (!file) {
-    errors.push('No USDZ file selected.');
+    errors.push('未选择 USDZ 文件。');
     return { ok: false, warnings, errors };
   }
   if (!file.name.toLowerCase().endsWith('.usdz')) {
@@ -474,21 +474,21 @@ async function diagnoseUsdzFile(file) {
     return { ok: false, warnings, errors };
   }
   if (file.size <= 0) {
-    errors.push('USDZ file is empty.');
+    errors.push('USDZ 文件为空。');
     return { ok: false, warnings, errors };
   }
   if (file.size > 80 * 1024 * 1024) {
-    warnings.push('Large USDZ file; mobile AR may fail due to memory limits.');
+    warnings.push('USDZ 文件较大，移动端 AR 可能因内存限制失败。');
   }
 
   const buffer = await file.arrayBuffer();
   const bytes = new Uint8Array(buffer);
   if (bytes.length < 4) {
-    errors.push('USDZ is too small to be a valid archive.');
+    errors.push('USDZ 文件过小，可能不是有效压缩包。');
     return { ok: false, warnings, errors };
   }
   if (!(bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x03 && bytes[3] === 0x04)) {
-    errors.push('USDZ must be a ZIP archive (missing PK signature).');
+    errors.push('USDZ 必须是 ZIP 封装（缺少 PK 签名）。');
     return { ok: false, warnings, errors };
   }
 
@@ -498,24 +498,24 @@ async function diagnoseUsdzFile(file) {
     warnings.push('Could not find .usdc/.usda entries near archive header.');
   }
   if (ascii.includes('__MACOSX/')) {
-    warnings.push('Archive includes macOS metadata folders; this can break some USDZ readers.');
+    warnings.push('压缩包包含 macOS 元数据目录，可能影响部分 USDZ 读取器。');
   }
 
   return { ok: errors.length === 0, warnings, errors, buffer };
 }
 
 async function loadUsdzFile(file) {
-  setViewerMsg('Checking USDZ file...', 'hint-info');
+  setViewerMsg('正在检查 USDZ 文件...', 'hint-info');
   try {
     const report = await diagnoseUsdzFile(file);
     if (!report.ok) {
-      setViewerMsg(`USDZ check failed: ${report.errors.join(' ')}`, 'hint-err');
+      setViewerMsg(`USDZ 检查失败：${report.errors.join(' ')}`, 'hint-err');
       return;
     }
     if (report.warnings.length) {
-      setViewerMsg(`USDZ warnings: ${report.warnings.join(' ')} Loading anyway...`, 'hint-warn');
+      setViewerMsg(`USDZ 警告：${report.warnings.join(' ')}，仍尝试加载...`, 'hint-warn');
     } else {
-      setViewerMsg('Loading USDZ model...', 'hint-info');
+      setViewerMsg('正在加载 USDZ 模型...', 'hint-info');
     }
 
     let object;
@@ -524,14 +524,14 @@ async function loadUsdzFile(file) {
     } catch (parseError) {
       const reason = parseError?.message || String(parseError);
       setViewerMsg(
-        `USDZ parse failed: ${reason}. Common causes: unsupported USDZ variant, compressed ZIP entries, or incompatible material data.`,
+        `USDZ 解析失败：${reason}。常见原因：USDZ 变体不受支持、ZIP 条目被压缩、材质数据不兼容。`,
         'hint-err'
       );
       return;
     }
 
     if (!object) {
-      setViewerMsg('USDZ parse returned empty scene.', 'hint-err');
+      setViewerMsg('USDZ 解析结果为空场景。', 'hint-err');
       return;
     }
 
@@ -547,13 +547,13 @@ async function loadUsdzFile(file) {
     applyLightSettings();
 
     if (report.warnings.length) {
-      setViewerMsg(`USDZ loaded with warnings: ${report.warnings.join(' ')}`, 'hint-warn');
+      setViewerMsg(`USDZ 加载完成（含警告）：${report.warnings.join(' ')}`, 'hint-warn');
     } else {
-      setViewerMsg('USDZ loaded successfully.', 'hint-ok');
+      setViewerMsg('USDZ 加载成功。', 'hint-ok');
     }
   } catch (error) {
     console.error('Failed to load USDZ', error);
-    setViewerMsg(`USDZ load failed: ${error?.message || String(error)}`, 'hint-err');
+    setViewerMsg(`USDZ 加载失败：${error?.message || String(error)}`, 'hint-err');
   }
 }
 
@@ -824,8 +824,8 @@ function handleFiles(fileList) {
     return;
   }
 
-  console.warn('Preview supports GLB/GLTF/FBX/USDZ.');
-  setViewerMsg('Unsupported model format. Please upload GLB/GLTF/FBX/USDZ.', 'hint-err');
+  console.warn('预览支持 GLB/GLTF/FBX/USDZ。');
+  setViewerMsg('不支持的模型格式，请上传 GLB/GLTF/FBX/USDZ。', 'hint-err');
 }
 
 fileInput.addEventListener('change', (event) => {
@@ -849,12 +849,12 @@ fitBtn.addEventListener('click', () => resetView());
 
 autoRotateBtn.addEventListener('click', () => {
   controls.autoRotate = !controls.autoRotate;
-  autoRotateBtn.textContent = controls.autoRotate ? 'Stop Rotate' : 'Auto Rotate';
+  autoRotateBtn.textContent = controls.autoRotate ? '停止旋转' : '自动旋转';
 });
 
 yAxisBtn.addEventListener('click', () => {
   yAxisFlipped = !yAxisFlipped;
-  yAxisBtn.textContent = yAxisFlipped ? 'Y+ Fixed' : 'Fix Y+';
+  yAxisBtn.textContent = yAxisFlipped ? 'Y+ 已修正' : '修正 Y+';
   if (currentModel) {
     applyYAxisFlip(currentModel, yAxisFlipped);
     currentBounds = computeBounds(currentModel);
@@ -864,7 +864,7 @@ yAxisBtn.addEventListener('click', () => {
 
 envToggleBtn.addEventListener('click', () => {
   envEnabled = !envEnabled;
-  envToggleBtn.textContent = envEnabled ? 'Env Light: On' : 'Env Light: Off';
+  envToggleBtn.textContent = envEnabled ? '环境光：开' : '环境光：关';
   scene.environment = envEnabled ? envTexture : null;
   setLightControlsEnabled(envEnabled);
   applyLightSettings();
@@ -885,14 +885,14 @@ lightTemp.addEventListener('input', () => {
 materialToggle.addEventListener('change', () => {
   materialEnabled = materialToggle.checked;
   const label = materialToggle.closest('.hud-group').querySelector('.switch-label');
-  label.textContent = materialEnabled ? 'On' : 'Off';
+  label.textContent = materialEnabled ? '开' : '关';
   if (currentModel) swapMaterials(currentModel, materialEnabled);
 });
 
 wireToggle.addEventListener('change', () => {
   wireframeEnabled = wireToggle.checked;
   const label = wireToggle.closest('.hud-group').querySelector('.switch-label');
-  label.textContent = wireframeEnabled ? 'On' : 'Off';
+  label.textContent = wireframeEnabled ? '开' : '关';
   if (currentModel) {
     currentModel.traverse((child) => {
       if (child.isMesh) applyWireframe(child.material, wireframeEnabled);
@@ -988,7 +988,7 @@ function updateArFilesLabel() {
   if (lastUploadLabel) names.push(lastUploadLabel);
   if (arGlbFile?.name && arGlbFile.name !== lastUploadLabel) names.push(arGlbFile.name);
   if (arUsdzFile?.name && arUsdzFile.name !== lastUploadLabel) names.push(arUsdzFile.name);
-  arFilesLabel.textContent = names.length ? names.join(' | ') : 'No model uploaded yet.';
+  arFilesLabel.textContent = names.length ? names.join(' | ') : '尚未上传模型。';
 
   if (arCompatHint) {
     const okAndroid = !!arGlbFile;
@@ -996,16 +996,16 @@ function updateArFilesLabel() {
     if (uploadArBtn) uploadArBtn.disabled = !okAndroid && !okIos;
     if (!okAndroid && !okIos) {
       setHintClass(arCompatHint, 'hint-warn');
-      arCompatHint.textContent = 'AR not ready: upload a GLB (Android) and/or USDZ (iOS) using “Upload Model”.';
+      arCompatHint.textContent = 'AR 未就绪：请通过“上传模型”上传 GLB（Android）和/或 USDZ（iOS）。';
     } else if (okAndroid && okIos) {
       setHintClass(arCompatHint, 'hint-ok');
-      arCompatHint.textContent = 'AR ready: Android (GLB) and iOS (USDZ) are both supported.';
+      arCompatHint.textContent = 'AR 已就绪：已同时支持 Android（GLB）与 iOS（USDZ）。';
     } else if (okAndroid) {
       setHintClass(arCompatHint, 'hint-warn');
-      arCompatHint.textContent = 'AR partially ready: Android is supported (GLB), add USDZ for better iOS AR.';
+      arCompatHint.textContent = 'AR 部分就绪：已支持 Android（GLB），建议补充 USDZ 以支持 iOS。';
     } else {
       setHintClass(arCompatHint, 'hint-warn');
-      arCompatHint.textContent = 'AR partially ready: iOS is supported (USDZ), add GLB for Android WebXR.';
+      arCompatHint.textContent = 'AR 部分就绪：已支持 iOS（USDZ），请补充 GLB 以支持 Android WebXR。';
     }
   }
 }
@@ -1016,7 +1016,7 @@ function setArResult(url, qrDataUrl) {
   if (arQrImg) arQrImg.src = qrDataUrl || '';
   if (arScanHint) {
     arScanHint.textContent = url
-      ? 'Scan tips: iOS use the default Camera app. Android use Camera or Google Lens, or open the link in Chrome.'
+      ? '扫码提示：iOS 请使用系统相机；Android 可使用系统相机或 Google Lens，也可在 Chrome 打开链接。'
       : '';
     setHintClass(arScanHint, 'hint-info');
   }
@@ -1132,7 +1132,7 @@ async function uploadForAr() {
     arUrl.searchParams.set('bucket', bucket);
 
     const qrApi = getQrApi();
-    if (!qrApi) throw new Error('QR library not available');
+    if (!qrApi) throw new Error('二维码库不可用');
     setArStatus('正在生成二维码...', 'hint-info');
     const qrDataUrl = await qrApi.toDataURL(arUrl.toString(), { margin: 1, width: 360 });
 
